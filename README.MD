@@ -117,10 +117,10 @@ JobID,JobName,User,Account,State,Submit,Start,End,Elapsed,ReqMem,MaxRSS
 
 The script is intended to support monthly execution from `cron`.
 
-For example, to run it on the second day of every month at 06:15:
+For example, to run it on the first day of every month at 06:15:
 
 ```cron
-15 6 2 * * /net/storage/pr3/plgrid/plgggutmap/_utils/slurm_reports/slurm_monthly_csv.sh
+15 6 1 * * /net/storage/prX/plgrid/plgproject/_utils/slurm_reports/slurm_monthly_csv.sh
 ```
 
 Each user should run the script from their own cron environment.
@@ -130,7 +130,7 @@ Each user should run the script from their own cron environment.
 If cron output should also be retained, it can be redirected separately:
 
 ```cron
-15 6 2 * * /net/storage/pr3/plgrid/plgggutmap/_utils/slurm_reports/slurm_monthly_csv.sh >> /path/to/slurm_monthly_csv.log 2>&1
+15 6 1 * * /net/storage/prX/plgrid/plgproject/_utils/slurm_reports/slurm_monthly_csv.sh >> /path/to/slurm_monthly_csv.log 2>&1
 ```
 
 ## File permissions
