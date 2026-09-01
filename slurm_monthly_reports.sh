@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+PATH=/net/slurm/releases/production.el8.x86_64/bin:/usr/local/bin:/usr/bin:/bin
 umask 0002
 
 # ============================================================
@@ -11,6 +12,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 OUTPUT_PATH="$SCRIPT_DIR"
 GRANT=""
+# GRANT=$(sacctmgr -nP show assoc where user="$USER" format=Account%100 | sort -u)
 MONTH=""
 
 usage() {
