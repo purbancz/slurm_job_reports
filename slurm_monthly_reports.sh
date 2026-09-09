@@ -27,11 +27,16 @@ Options:
 
   --grant GRANT      Optional Slurm grant_name (or account) filter.
                      If omitted, reports all jobs visible to sacct for \$USER.
+                     When given, the grant is appended to the output filename.
 
   --month YYYY-MM    Month to report.
                      If omitted, the previous calendar month is used.
 
   -h, --help         Show this help.
+
+Output:
+  PATH/YYYY-MM/\$USER-YYYY-MM.csv             without --grant
+  PATH/YYYY-MM/\$USER-YYYY-MM-GRANT.csv       with --grant
 
 Examples:
   $0
@@ -126,11 +131,20 @@ END=$(date -d "$START +1 month" +%Y-%m-%d)
 OUTDIR="$OUTPUT_PATH/$MONTH"
 mkdir -p "$OUTDIR"
 
-CSV="$OUTDIR/${USER}-${MONTH}.csv"
+# Base name: "$USER-YYYY-MM", with the grant appended when one was requested,
+# so reports for different grants do not overwrite each other.
+# The grant is sanitised because multi-account values contain commas.
+BASENAME="${USER}-${MONTH}"
+
+if [[ -n "$GRANT" ]]; then
+    BASENAME="${BASENAME}-${GRANT//[![:alnum:]._-]/_}"
+fi
+
+CSV="$OUTDIR/${BASENAME}.csv"
 
 # Write to a temporary file first.
 # TMP is created in the same filesystem so the final mv is atomic.
-TMP=$(mktemp "$OUTDIR/.${USER}-${MONTH}.XXXXXX")
+TMP=$(mktemp "$OUTDIR/.${BASENAME}.XXXXXX")
 trap 'rm -f "$TMP"' EXIT
 
 # ============================================================
