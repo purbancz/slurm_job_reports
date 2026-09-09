@@ -15,8 +15,8 @@ It is reccomended to locate the script in the `utils` folder in the shared stora
 Generated reports are stored in the output directory under:
 
 ```text
-YYYY-MM/$USER-YYYY-MM.csv             without --grant
-YYYY-MM/$USER-YYYY-MM-GRANT.csv       with --grant
+logs/YYYY-MM/$USER-YYYY-MM.csv         without --grant
+logs/YYYY-MM/$USER-YYYY-MM-GRANT.csv   with --grant
 ```
 
 With this layout and the default option, e.g.:
@@ -27,12 +27,13 @@ With this layout and the default option, e.g.:
 ├── slurm_monthly_reports.sh
 ├── README.md
 ├── .gitignore
-├── 2026-06/
-│   ├── username-2026-06.csv
-│   └── username-2026-06-grant_name100k-cpu.csv
-└── 2026-07/
-    ├── username-2026-07.csv
-    └── username-2026-07-grant_name100k-cpu.csv
+└── logs/
+    ├── 2026-06/
+    │   ├── username-2026-06.csv
+    │   └── username-2026-06-grant_name100k-cpu.csv
+    └── 2026-07/
+        ├── username-2026-07.csv
+        └── username-2026-07-grant_name100k-cpu.csv
 ```
 
 ## Requirements
@@ -54,7 +55,7 @@ All arguments are optional.
 
 ### `--output-path PATH`
 
-Root path under which the `YYYY-MM/` report directories are created.
+Root path where the `logs/` directory will be created.
 By default, the directory containing the script itself is used.
 
 
@@ -72,7 +73,7 @@ Example:
     --grant grant_name
 ```
 
-writes `2026-07/username-2026-07-grant_name.csv`.
+writes `logs/2026-07/username-2026-07-grant_name.csv`.
 
 Multiple Slurm accounts may be supplied if supported by the local `sacct` configuration, for example:
 

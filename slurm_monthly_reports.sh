@@ -22,7 +22,8 @@ Usage:
 
 Options:
   --output-path PATH
-                     Root directory for reports.
+                     Root directory for reports; the logs/ tree is
+                     created under it.
                      Default: directory containing this script.
 
   --grant GRANT      Optional Slurm grant_name (or account) filter.
@@ -35,8 +36,8 @@ Options:
   -h, --help         Show this help.
 
 Output:
-  PATH/YYYY-MM/\$USER-YYYY-MM.csv             without --grant
-  PATH/YYYY-MM/\$USER-YYYY-MM-GRANT.csv       with --grant
+  PATH/logs/YYYY-MM/\$USER-YYYY-MM.csv         without --grant
+  PATH/logs/YYYY-MM/\$USER-YYYY-MM-GRANT.csv   with --grant
 
 Examples:
   $0
@@ -128,7 +129,7 @@ END=$(date -d "$START +1 month" +%Y-%m-%d)
 # Output paths
 # ============================================================
 
-OUTDIR="$OUTPUT_PATH/$MONTH"
+OUTDIR="$OUTPUT_PATH/logs/$MONTH"
 mkdir -p "$OUTDIR"
 
 # Base name: "$USER-YYYY-MM", with the grant appended when one was requested,
@@ -176,6 +177,7 @@ fi
     sacct "${SACCT_ARGS[@]}"
 } > "$TMP"
 
+chmod 664 "$TMP"
 mv "$TMP" "$CSV"
 trap - EXIT
 
