@@ -15,9 +15,11 @@ It is reccomended to locate the script in the `utils` folder in the shared stora
 Generated reports are stored in the output directory under:
 
 ```text
-logs/YYYY-MM/$USER-YYYY-MM.csv         without --grant
-logs/YYYY-MM/$USER-YYYY-MM-GRANT.csv   with --grant
+logs/YYYY-MM/$USER-CLUSTER-YYYY-MM.csv         without --grant
+logs/YYYY-MM/$USER-CLUSTER-YYYY-MM-GRANT.csv   with --grant
 ```
+
+`CLUSTER` is the Slurm cluster name (`ClusterName` from `scontrol show config`), so reports from different clusters can be told apart. If it cannot be read, the short hostname is used instead.
 
 With this layout and the default option, e.g.:
 
@@ -29,11 +31,11 @@ With this layout and the default option, e.g.:
 ├── .gitignore
 └── logs/
     ├── 2026-06/
-    │   ├── username-2026-06.csv
-    │   └── username-2026-06-grant_name100k-cpu.csv
+    │   ├── username-cluster-2026-06.csv
+    │   └── username-cluster-2026-06-grant_name100k-cpu.csv
     └── 2026-07/
-        ├── username-2026-07.csv
-        └── username-2026-07-grant_name100k-cpu.csv
+        ├── username-cluster-2026-07.csv
+        └── username-cluster-2026-07-grant_name100k-cpu.csv
 ```
 
 ## Requirements
@@ -73,7 +75,7 @@ Example:
     --grant grant_name
 ```
 
-writes `logs/2026-07/username-2026-07-grant_name.csv`.
+writes `logs/2026-07/username-cluster-2026-07-grant_name.csv`.
 
 Multiple Slurm accounts may be supplied if supported by the local `sacct` configuration, for example:
 
@@ -83,7 +85,7 @@ Multiple Slurm accounts may be supplied if supported by the local `sacct` config
 ```
 
 Characters that are awkward in filenames — the comma separating multiple accounts, above all — are replaced with `_`, giving
-`username-2026-07-grant_name100k-cpu_grant_name100k-cpu-bigmem.csv`.
+`username-cluster-2026-07-grant_name100k-cpu_grant_name100k-cpu-bigmem.csv`.
 The unmodified grant string is still what gets passed to `sacct`.
 
 ### `--month YYYY-MM`

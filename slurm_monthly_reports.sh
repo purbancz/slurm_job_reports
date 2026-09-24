@@ -37,8 +37,10 @@ Options:
   -h, --help         Show this help.
 
 Output:
-  PATH/logs/YYYY-MM/\$USER-YYYY-MM.csv         without --grant
-  PATH/logs/YYYY-MM/\$USER-YYYY-MM-GRANT.csv   with --grant
+  PATH/logs/YYYY-MM/\$USER-CLUSTER-YYYY-MM.csv         without --grant
+  PATH/logs/YYYY-MM/\$USER-CLUSTER-YYYY-MM-GRANT.csv   with --grant
+
+  CLUSTER is the Slurm ClusterName (hostname if it cannot be read).
 
 Examples:
   $0
@@ -133,10 +135,9 @@ END=$(date -d "$START +1 month" +%Y-%m-%d)
 OUTDIR="$OUTPUT_PATH/logs/$MONTH"
 mkdir -p "$OUTDIR"
 
-# Base name: "$USER-YYYY-MM", with the grant appended when one was requested,
-# so reports for different grants do not overwrite each other.
-# The grant is sanitised because multi-account values contain commas.
-BASENAME="${USER}-${MONTH}"
+CLUSTER=$(scontrol show config 2>/dev/null | awk '$1=="ClusterName"{print $3}' || true)
+CLUSTER="${CLUSTER:-$(hostname -s)}"
+BASENAME="${USER}-${CLUSTER//[![:alnum:]._-]/_}-${MONTH}"
 
 if [[ -n "$GRANT" ]]; then
     BASENAME="${BASENAME}-${GRANT//[![:alnum:]._-]/_}"
@@ -186,4 +187,4 @@ trap - EXIT
 # Summary
 # ============================================================
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') OK user=$USER month=$MONTH grant=${GRANT:-all} csv=$CSV"
+echo "$(date '+%Y-%m-%d %H:%M:%S') OK user=$USER cluster=$CLUSTER month=$MONTH grant=${GRANT:-all} csv=$CSV"
