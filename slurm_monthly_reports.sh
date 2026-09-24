@@ -2,6 +2,7 @@
 
 set -euo pipefail
 PATH=/net/slurm/releases/production.el8.x86_64/bin:/usr/local/bin:/usr/bin:/bin
+USER="${USER:-$(id -un)}"
 umask 0002
 
 # ============================================================
