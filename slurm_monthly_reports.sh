@@ -154,14 +154,15 @@ trap 'rm -f "$TMP"' EXIT
 # Build sacct arguments
 # ============================================================
 
+FIELDS=JobID,JobName,User,Account,State,Submit,Start,End,Elapsed,ReqMem,MaxRSS,AllocCPUS,AllocTRES,TotalCPU,ConsumedEnergyRaw
+
 SACCT_ARGS=(
     --user="$USER"
     --starttime="$START"
     --endtime="$END"
     --noheader
     --parsable2
-    --delimiter=","
-    --format=JobID,JobName,User,Account,State,Submit,Start,End,Elapsed,ReqMem,MaxRSS
+    --format="$FIELDS"
 )
 
 # Filter by Slurm account/grant only when explicitly requested.
@@ -173,10 +174,17 @@ fi
 # Generate report
 # ============================================================
 
+# sacct separates fields with "|". AllocTRES (and possibly JobName) contain commas,
+# so those fields are quoted to keep the file valid CSV.
 {
-    echo "JobID,JobName,User,Account,State,Submit,Start,End,Elapsed,ReqMem,MaxRSS"
+    echo "$FIELDS"
 
-    sacct "${SACCT_ARGS[@]}"
+    sacct "${SACCT_ARGS[@]}" | awk -F'|' -v OFS=, '{
+        $1 = $1
+        for (i = 1; i <= NF; i++)
+            if ($i ~ /[",]/) { gsub(/"/, "\"\"", $i); $i = "\"" $i "\"" }
+        print
+    }'
 } > "$TMP"
 
 chmod 664 "$TMP"

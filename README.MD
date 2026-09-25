@@ -117,13 +117,23 @@ End
 Elapsed
 ReqMem
 MaxRSS
+AllocCPUS
+AllocTRES
+TotalCPU
+ConsumedEnergyRaw
 ```
+
+`AllocCPUS` and `AllocTRES` (which lists allocated GPUs as `gres/gpu=N`) give the resources a job held,
+`TotalCPU` the CPU time it actually used, and `ConsumedEnergyRaw` its energy in joules where the cluster
+records it (otherwise empty).
 
 Example header:
 
 ```csv
-JobID,JobName,User,Account,State,Submit,Start,End,Elapsed,ReqMem,MaxRSS
+JobID,JobName,User,Account,State,Submit,Start,End,Elapsed,ReqMem,MaxRSS,AllocCPUS,AllocTRES,TotalCPU,ConsumedEnergyRaw
 ```
+
+Fields containing commas or quotes, such as `AllocTRES`, are quoted, so the file is standard CSV.
 
 
 ## Automatic execution with cron
