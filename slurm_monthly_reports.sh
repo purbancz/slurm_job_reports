@@ -13,13 +13,14 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 OUTPUT_PATH="$SCRIPT_DIR"
 GRANT=""
+REPORT_USER="$USER"
 # GRANT=$(sacctmgr -nP show assoc where user="$USER" format=Account%100 | sort -u)
 MONTH=""
 
 usage() {
     cat <<EOF
 Usage:
-  $0 [--output-path PATH] [--grant GRANT] [--month YYYY-MM]
+  $0 [--output-path PATH] [--grant GRANT] [--month YYYY-MM] [--user NAME]
 
 Options:
   --output-path PATH
@@ -34,11 +35,17 @@ Options:
   --month YYYY-MM    Month to report.
                      If omitted, the previous calendar month is used.
 
+  --user NAME        User whose jobs to report. Default: \$USER.
+                     Other users' jobs are only visible where Slurm's
+                     PrivateData setting allows it.
+
   -h, --help         Show this help.
 
 Output:
-  PATH/logs/YYYY-MM/\$USER-CLUSTER-YYYY-MM.csv         without --grant
-  PATH/logs/YYYY-MM/\$USER-CLUSTER-YYYY-MM-GRANT.csv   with --grant
+  PATH/logs/YYYY-MM/USER-CLUSTER-YYYY-MM.csv         without --grant
+  PATH/logs/YYYY-MM/USER-CLUSTER-YYYY-MM-GRANT.csv   with --grant
+
+  USER is the reported user (--user, default \$USER).
 
   CLUSTER is the Slurm ClusterName (hostname if it cannot be read).
 
@@ -91,6 +98,15 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
 
+        --user)
+            if [[ $# -lt 2 ]]; then
+                echo "ERROR: --user requires a value" >&2
+                exit 1
+            fi
+            REPORT_USER="$2"
+            shift 2
+            ;;
+
         -h|--help)
             usage
             exit 0
@@ -125,6 +141,11 @@ if ! date -d "${MONTH}-01" '+%Y-%m' >/dev/null 2>&1; then
     exit 1
 fi
 
+if ! id -u -- "$REPORT_USER" >/dev/null 2>&1; then
+    echo "ERROR: unknown user: $REPORT_USER" >&2
+    exit 1
+fi
+
 START="${MONTH}-01"
 END=$(date -d "$START +1 month" +%Y-%m-%d)
 
@@ -137,7 +158,7 @@ mkdir -p "$OUTDIR"
 
 CLUSTER=$(scontrol show config 2>/dev/null | awk '$1=="ClusterName"{print $3}' || true)
 CLUSTER="${CLUSTER:-$(hostname -s)}"
-BASENAME="${USER}-${CLUSTER//[![:alnum:]._-]/_}-${MONTH}"
+BASENAME="${REPORT_USER}-${CLUSTER//[![:alnum:]._-]/_}-${MONTH}"
 
 if [[ -n "$GRANT" ]]; then
     BASENAME="${BASENAME}-${GRANT//[![:alnum:]._-]/_}"
@@ -157,7 +178,7 @@ trap 'rm -f "$TMP"' EXIT
 FIELDS=JobID,JobName,User,Account,State,Submit,Start,End,Elapsed,ReqMem,MaxRSS,AllocCPUS,AllocTRES,TotalCPU,ConsumedEnergyRaw
 
 SACCT_ARGS=(
-    --user="$USER"
+    --user="$REPORT_USER"
     --starttime="$START"
     --endtime="$END"
     --noheader
@@ -195,4 +216,4 @@ trap - EXIT
 # Summary
 # ============================================================
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') OK user=$USER cluster=$CLUSTER month=$MONTH grant=${GRANT:-all} csv=$CSV"
+echo "$(date '+%Y-%m-%d %H:%M:%S') OK user=$REPORT_USER cluster=$CLUSTER month=$MONTH grant=${GRANT:-all} csv=$CSV"

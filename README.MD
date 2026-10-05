@@ -50,7 +50,7 @@ The script requires:
 ## Usage
 
 ```bash
-./slurm_monthly_reports.sh [--output-path PATH] [--grant GRANT] [--month YYYY-MM]
+./slurm_monthly_reports.sh [--output-path PATH] [--grant GRANT] [--month YYYY-MM] [--user NAME]
 ```
 
 All arguments are optional.
@@ -98,6 +98,18 @@ To generate a report for a specific month:
 ```bash
 ./slurm_monthly_reports.sh \
     --month 2026-06
+```
+
+
+### `--user NAME`
+
+User whose jobs to report; the file is named after them. Default: the user running the script.
+Reporting someone else's jobs works only where Slurm lets users see each other's accounting data
+(`PrivateData` in `slurm.conf` does not include `jobs`); otherwise `sacct` returns nothing.
+
+```bash
+./slurm_monthly_reports.sh \
+    --user colleague_name
 ```
 
 
